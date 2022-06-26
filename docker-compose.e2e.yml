@@ -1,0 +1,42 @@
+version: "2.4"
+
+services:
+  analytics-feed:
+    entrypoint: /bin/true
+  notification-service:
+    entrypoint: /bin/true
+  clickhouse-server:
+    entrypoint: /bin/true
+  portal-api:
+    environment:
+        ADMIN_API_CLIENT_SECRET: "$ADMIN_API_CLIENT_SECRET"
+  etcd:
+    entrypoint: /usr/local/bin/etcd
+  keycloak:
+    environment:
+      - KEYCLOAK_IMPORT=/config/e2e-divoc-realm.json
+    volumes:
+      - ./keycloak:/config
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -f http://keycloak:8080/auth/realms/divoc/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 1m
+  certificate-processor:
+      environment:
+        ADMIN_API_CLIENT_SECRET: "$ADMIN_API_CLIENT_SECRET"
+  e2e_test:
+    build:
+      context: ./e2e
+    container_name: e2e_test
+    depends_on: 
+      vaccination-api:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+      registry:
+        condition: service_started
+      etcd:
+        condition: service_started

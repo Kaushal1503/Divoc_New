@@ -1,0 +1,190 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Divoc
+  description: Digital infra for vaccination certificates
+securityDefinitions:
+  hasRole:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: 'https://divoc.xiv.in/keycloak/auth/realms/divoc/protocol/openid-connect/auth'
+    tokenUrl: 'https://divoc.xiv.in/keycloak/auth/realms/divoc/protocol/openid-connect/token'
+    scopes:
+      admin: scope of super admin
+      facility-admin: scope of facility admin
+      facility-staff: scope of facility staff
+security:
+  - hasRole: ['api']
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /certificate/:
+    get:
+      tags:
+        - certificate
+      summary: Get certificate
+      consumes:
+        - application/json
+      produces:
+        - application/pdf
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found
+        '403':
+          description: Forbidden
+
+  '/certificatePDF/{preEnrollmentCode}':
+    get:
+      tags:
+        - certificate 
+      summary: Get certificate
+      parameters:
+        - name: preEnrollmentCode
+          in: path
+          required: true
+          type: string
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found
+        '403':
+          description: Forbidden
+    head:
+      tags:
+        - certificate
+      summary: Get certificate
+      parameters:
+        - name: preEnrollmentCode
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found
+        '403':
+          description: Forbidden
+  '/certificatePDF':
+    get:
+      tags:
+        - certificate
+      summary: Get certificate
+      parameters:
+        - in: query
+          name: certificateId
+          type: string
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found
+        '403':
+          description: Forbidden
+  '/fhir-certificate':
+    get:
+      tags:
+        - certificate
+      summary: Get FHIR bundle json for given beneficiary
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: refId
+          in: query
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found
+        '403':
+          description: Forbidden
+  '/eu-certificate':
+    get:
+      tags:
+        - certificate
+      summary: Get certificate in EU format
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: refId
+          in: query
+          required: true
+          type: string
+        - name: type
+          in: query
+          type: string
+          enum: ["qrcode"]
+      produces:
+        - application/pdf
+        - image/png
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found
+        '403':
+          description: Forbidden
+  '/shc-certificate':
+    get:
+      tags:
+        - certificate
+      summary: Get certificate in SHC(Smart Health Card) format
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: refId
+          in: query
+          required: true
+          type: string
+        - name: type
+          in: query
+          type: string
+          enum: ["qrcode"]
+      produces:
+        - application/pdf
+        - image/png
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found
+        '403':
+          description: Forbidden
+  '/test/certificatePDF/{preEnrollmentCode}':
+    get:
+      tags:
+        - certificate
+      summary: Get test certificate
+      parameters:
+        - name: preEnrollmentCode
+          in: path
+          required: true
+          type: string
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found
+        '403':
+          description: Forbidden
+host: divoc.xiv.in
+schemes:
+  - https
+basePath: /certificate/api
